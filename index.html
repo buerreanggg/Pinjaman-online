@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <main class="container">
+        <h2>Tambah Nasabah</h2>
+        <form id="nasabahForm">
+            <label for="ktpInput">Foto KTP:</label>
+            <input type="file" id="ktpInput" accept="image/*" required>
+            <img id="ktpPreview" class="ktp-preview" src="" alt="Preview KTP" style="display:none;"><br>
+
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" required pattern="[A-Za-z ]+" placeholder="Masukkan Nama Lengkap"><br>
+
+            <label for="pinjaman">Jumlah Pinjaman (Rp):</label>
+            <input type="text" id="pinjaman" required placeholder="Masukkan jumlah dalam format 1.000.000"><br>
+
+            <label for="waktu">Waktu Pinjaman (bulan):</label>
+            <input type="number" id="waktu" required min="1"><br>
+
+            <label for="hp">No HP:</label>
+            <input type="tel" id="hp" required pattern="[0-9]+" placeholder="Masukkan No HP"><br>
+
+            <label for="bank">Bank Penerima:</label>
+            <input type="text" id="bank" required placeholder="Masukkan Nama Bank"><br>
+
+            <label for="virtualAccount">Virtual Account:</label>
+            <input type="text" id="virtualAccount" required pattern="[0-9]+" placeholder="Masukkan No. Virtual Account"><br>
+
+            <label for="nomorTagihan">Nomor Tagihan:</label>
+            <input type="text" id="nomorTagihan" required pattern="[A-Za-z0-9]+" placeholder="Masukkan Nomor Tagihan"><br>
+
+            <label for="jumlahBayar">Jumlah Pembayaran per Bulan (Rp):</label>
+            <input type="text" id="jumlahBayar" required placeholder="Masukkan jumlah dalam format 1.000.000"><br>
+
+            <button type="submit">Tambah Nasabah</button>
+        </form>
+
+        <div class="button-container">
+            <a href="list.html" class="list-button">Lihat Daftar Nasabah</a>
+        </div>
+    </main>
+
+    <script>
+        // Format input Rupiah
+        function formatRupiah(event) {
+            let value = event.target.value.replace(/\D/g, ""); 
+            event.target.value = value ? new Intl.NumberFormat("id-ID").format(parseInt(value, 10)) : "";
+        }
+
+        document.getElementById("pinjaman").addEventListener("input", formatRupiah);
+        document.getElementById("jumlahBayar").addEventListener("input", formatRupiah);
+
+        // Preview KTP
+        document.getElementById("ktpInput").addEventListener("change", function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = document.getElementById("ktpPreview");
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Simpan data ke localStorage
+        document.getElementById("nasabahForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let ktpFile = document.getElementById("ktpInput").files[0];
+            if (!ktpFile) {
+                alert("Silakan unggah foto KTP!");
+                return;
+            }
+
+            let nama = document.getElementById("nama").value.trim();
+            let jumlahPinjaman = document.getElementById("pinjaman").value.replace(/\./g, ""); 
+            let waktuPinjaman = document.getElementById("waktu").value;
+            let noHandphone = document.getElementById("hp").value.trim();
+            let bank = document.getElementById("bank").value.trim();
+            let virtualAccount = document.getElementById("virtualAccount").value.trim();
+            let nomorTagihan = document.getElementById("nomorTagihan").value.trim();
+            let jumlahBayar = document.getElementById("jumlahBayar").value.replace(/\./g, "");
+
+            if (!nama || !jumlahPinjaman || !waktuPinjaman || !noHandphone || !bank || !virtualAccount || !nomorTagihan || !jumlahBayar) {
+                alert("Semua kolom harus diisi!");
+                return;
+            }
+
+            if (!/^[A-Za-z ]+$/.test(nama)) {
+                alert("Nama hanya boleh mengandung huruf dan spasi!");
+                return;
+            }
+
+            if (!/^[0-9]+$/.test(noHandphone)) {
+                alert("Nomor HP hanya boleh mengandung angka!");
+                return;
+            }
+
+            if (!/^[0-9]+$/.test(virtualAccount)) {
+                alert("Virtual Account hanya boleh mengandung angka!");
+                return;
+            }
+
+            if (!/^[A-Za-z0-9]+$/.test(nomorTagihan)) {
+                alert("Nomor Tagihan hanya boleh mengandung huruf dan angka!");
+                return;
+            }
+
+            if (!confirm("Apakah data nasabah sudah benar?")) {
+                return;
+            }
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let ktpBase64 = e.target.result;
+                let idNasabah = Date.now().toString();
+
+                let nasabahBaru = {
+                    id: idNasabah,
+                    ktp: ktpBase64,
+                    nama: nama,
+                    jumlahPinjaman: jumlahPinjaman,
+                    waktuPinjaman: waktuPinjaman,
+                    noHandphone: noHandphone,
+                    bank: bank,
+                    virtualAccount: virtualAccount,
+                    nomorTagihan: nomorTagihan,
+                    jumlahBayar: jumlahBayar
+                };
+
+                let daftarNasabah = JSON.parse(localStorage.getItem("daftarNasabah")) || [];
+                daftarNasabah.push(nasabahBaru);
+                localStorage.setItem("daftarNasabah", JSON.stringify(daftarNasabah));
+
+                localStorage.setItem("lastNasabahID", idNasabah);
+                window.location.href = `pembayaran.html?id=${idNasabah}`;
+            };
+
+            reader.onerror = function() {
+                alert("Gagal membaca file KTP, coba unggah ulang!");
+            };
+
+            reader.readAsDataURL(ktpFile);
+        });
+    </script>
+</body>
+</html>

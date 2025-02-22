@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinjaman Online</title>
+    <link rel="stylesheet" href="beranda.css">
+</head>
+<body>
+    <main class="container">
+        <div class="banner">
+            <img src="WhatsApp Image 2025-02-14 at 19.07.34.jpeg" alt="Layanan Pinjaman" class="background-image">
+            
+            <!-- Menu overlay -->
+            <div class="menu-overlay">
+                <a id="profilPeminjam" class="menu-item profil">
+                    <img src="5577995.png" alt="Profil" class="icon">
+                    <span class="profil-text">Profil Peminjam</span>
+                </a>
+                <a id="bayarSekarang" class="menu-item bayar">
+                    <img src="bayarwoi.png" alt="Bayar" class="icon">
+                    <span class="bayar-text">Bayar Sekarang</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let idNasabahTerakhir = localStorage.getItem("lastNasabahID");
+            
+            document.getElementById("profilPeminjam").addEventListener("click", function(event) {
+                if (idNasabahTerakhir) {
+                    window.location.href = `pembayaran.html?id=${idNasabahTerakhir}`;
+                } else {
+                    alert("Belum ada data nasabah! Silakan masukkan data di admin.");
+                }
+            });
+            
+            document.getElementById("bayarSekarang").addEventListener("click", function(event) {
+                if (idNasabahTerakhir) {
+                    window.location.href = `bayarsekarang.html?id=${idNasabahTerakhir}`;
+                } else {
+                    alert("Belum ada data pembayaran! Silakan masukkan data nasabah terlebih dahulu.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bayar Sekarang</title>
+  <link rel="stylesheet" href="bayarsekarang.css">
+</head>
+<body>
+  <main class="container">
+    <div class="payment-box">
+      <!-- Virtual Account -->
+      <section class="va-number">
+        <!-- Tambahkan style cursor pointer untuk menandakan bisa diklik -->
+        <h2 id="virtualAccount" style="cursor: pointer;">-</h2>
+      </section>
+
+      <!-- Informasi Pembayaran -->
+      <section class="payment-info">
+        <div class="info-item">
+          <strong>Total Bayar</strong>
+          <p>Rp <span id="totalBayar">-</span></p>
+        </div>
+        <div class="info-item">
+          <strong>No Tagihan</strong>
+          <p id="noTagihan">-</p>
+        </div>
+      </section>
+
+      <!-- Panduan Pembayaran -->
+      <section class="payment-guide">
+        <h3>Cara Bayar via ATM</h3>
+        <ul>
+          <li>Masukkan kartu ATM dan PIN</li>
+          <li>Pilih menu "Transfer"</li>
+          <li>Pilih "Virtual Account" dan masukkan nomor di atas</li>
+          <li>Konfirmasi pembayaran dan simpan bukti</li>
+        </ul>
+
+        <h3>Cara Bayar via Mobile Banking</h3>
+        <ul>
+          <li>Login ke aplikasi Mobile Banking</li>
+          <li>Pilih menu "Transfer"</li>
+          <li>Pilih "Virtual Account" dan masukkan nomor di atas</li>
+          <li>Konfirmasi pembayaran dan simpan bukti</li>
+        </ul>
+      </section>
+      
+      <!-- Tautan Kembali ke Beranda -->
+      <div class="button-container">
+        <a href="beranda.html" class="list-button">Kembali ke Beranda</a>
+      </div>
+
+      <!-- Tombol Konfirmasi Pembayaran -->
+      <button class="pay-button" onclick="konfirmasiPembayaran()">Telah Membayar</button>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      // Ambil idNasabah dari query parameter atau dari lastNasabahID
+      const idNasabah = getQueryParam("id") || localStorage.getItem("lastNasabahID");
+      const daftarNasabah = JSON.parse(localStorage.getItem("daftarNasabah")) || [];
+      // Cari nasabah dengan menggunakan properti 'id'
+      const nasabah = daftarNasabah.find(n => String(n.id) === String(idNasabah));
+
+      if (nasabah) {
+        document.getElementById("virtualAccount").innerText = nasabah.virtualAccount || "Tidak tersedia";
+        document.getElementById("totalBayar").innerText = parseInt(nasabah.jumlahPinjaman || 0).toLocaleString("id-ID");
+        // Menggunakan properti 'nomorTagihan'
+        document.getElementById("noTagihan").innerText = nasabah.nomorTagihan ||
+          `INV${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}`;
+      } else {
+        alert("Data nasabah tidak ditemukan! Kembali ke beranda.");
+        setTimeout(() => {
+          window.location.href = "beranda.html";
+        }, 2000);
+      }
+
+      // Event listener untuk meng-copy nomor VA ketika diklik
+      document.getElementById("virtualAccount").addEventListener("click", function() {
+        const vaNumber = this.innerText;
+        if (vaNumber && vaNumber !== "-") {
+          navigator.clipboard.writeText(vaNumber)
+            .then(() => {
+              alert("Nomor VA telah disalin: " + vaNumber);
+            })
+            .catch(err => {
+              console.error("Gagal menyalin VA: ", err);
+              alert("Gagal menyalin nomor VA.");
+            });
+        }
+      });
+
+      // Fungsi konfirmasi pembayaran
+      window.konfirmasiPembayaran = function() {
+        alert("Terima kasih, pembayaran Anda sedang diproses!");
+      }
+    });
+  </script>
+</body>
+</html>
